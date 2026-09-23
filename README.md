@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Course Directory — Assignment 2
 
-## Getting Started
+The original Week 1 Next.js app, extended with a Supabase-backed course list.
 
-First, run the development server:
+## Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Create a Supabase project and run `supabase/schema.sql` in its SQL Editor.
+2. Copy `.env.example` to `.env.local` and fill in the project URL and legacy anon key from Supabase. Never use a service-role key.
+3. Run `npm install` and `npm run dev`.
+4. Open http://localhost:3000.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env.local` is ignored by Git. `.env.example` contains only variable names.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How it works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`app/page.tsx` is an async Server Component. It reads the Supabase URL and anon key from environment variables, selects course rows, and renders a card for each row. `connection()` makes the query run at request time, so database edits appear on the next page load. Empty and failed queries have separate messages.
 
-## Learn More
+The SQL script creates six sample courses and enables Row Level Security. Anonymous and authenticated visitors have SELECT access only; no public insert, update, or delete access is granted.
 
-To learn more about Next.js, take a look at the following resources:
+## Vercel deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Continue using the existing Vercel project connected to this repository. Add these environment variables to both Production and Preview before deploying:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Run `npm run build` and `npm run lint`, commit and push the changes, and verify the resulting Vercel deployment. Deployment Protection must be disabled for the assignment. Open the unique deployment URL in an incognito window and verify that all six courses appear. Submit the unique URL associated with the final commit, rather than the moving production or branch alias.
