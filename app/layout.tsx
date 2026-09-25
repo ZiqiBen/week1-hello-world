@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Course Directory",
-  description: "Explore a collection of computer science courses.",
+  title: "Algorithm Pattern Atlas",
+  description: "Browse coding interview patterns backed by Supabase.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

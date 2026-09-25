@@ -1,6 +1,6 @@
-# Course Directory — Assignment 2
+# Algorithm Pattern Atlas — Assignment 2
 
-The original Week 1 Next.js app, extended with a Supabase-backed course list.
+The original Week 1 Next.js app, extended with a Supabase-backed algorithm pattern atlas.
 
 ## Setup
 
@@ -13,9 +13,9 @@ The original Week 1 Next.js app, extended with a Supabase-backed course list.
 
 ## How it works
 
-`app/page.tsx` is an async Server Component. It reads the Supabase URL and anon key from environment variables, selects course rows, and renders a card for each row. `connection()` makes the query run at request time, so database edits appear on the next page load. Empty and failed queries have separate messages.
+`app/page.tsx` is an async Server Component. It reads the Supabase URL and anon key from environment variables, selects algorithm pattern rows, and renders a card for each row. `connection()` makes the query run at request time, so database edits appear on the next page load. Empty and failed queries have separate messages.
 
-The SQL script creates six sample courses and enables Row Level Security. Anonymous and authenticated visitors have SELECT access only; no public insert, update, or delete access is granted.
+The SQL script creates twelve sample patterns and enables Row Level Security. Anonymous and authenticated visitors have SELECT access only; no public insert, update, or delete access is granted.
 
 ## Vercel deployment
 
@@ -24,4 +24,4 @@ Continue using the existing Vercel project connected to this repository. Add the
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-Run `npm run build` and `npm run lint`, commit and push the changes, and verify the resulting Vercel deployment. Deployment Protection must be disabled for the assignment. Open the unique deployment URL in an incognito window and verify that all six courses appear. Submit the unique URL associated with the final commit, rather than the moving production or branch alias.
+Run `npm run build` and `npm run lint`, commit and push the changes, and verify the resulting Vercel deployment. Deployment Protection must be disabled for the assignment. Open the unique deployment URL in an incognito window and verify that the pattern cards appear. Submit the unique URL associated with the final commit, rather than the moving production or branch alias.
