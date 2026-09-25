@@ -15,7 +15,7 @@ The original Week 1 Next.js app, extended with a Supabase-backed algorithm patte
 
 `app/page.tsx` is an async Server Component. It reads the Supabase URL and anon key from environment variables, selects algorithm pattern rows, and renders a card for each row. `connection()` makes the query run at request time, so database edits appear on the next page load. Empty and failed queries have separate messages.
 
-The SQL script creates twelve sample patterns and enables Row Level Security. Anonymous and authenticated visitors have SELECT access only; no public insert, update, or delete access is granted.
+The SQL script creates thirty-two sample patterns and enables Row Level Security. Anonymous and authenticated visitors have SELECT access only; no public insert, update, or delete access is granted.
 
 ## Vercel deployment
 
