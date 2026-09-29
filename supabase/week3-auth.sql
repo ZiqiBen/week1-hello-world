@@ -40,3 +40,25 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- Public avatar storage for profile photo uploads.
+insert into storage.buckets (id, name, public)
+values ('avatars', 'avatars', true)
+on conflict (id) do update set public = true;
+
+drop policy if exists "Anyone can view avatars" on storage.objects;
+drop policy if exists "Authenticated users can upload avatars" on storage.objects;
+drop policy if exists "Users can update their own avatars" on storage.objects;
+
+create policy "Anyone can view avatars"
+  on storage.objects for select
+  using (bucket_id = 'avatars');
+
+create policy "Authenticated users can upload avatars"
+  on storage.objects for insert to authenticated
+  with check (bucket_id = 'avatars');
+
+create policy "Users can update their own avatars"
+  on storage.objects for update to authenticated
+  using (bucket_id = 'avatars' and owner = auth.uid())
+  with check (bucket_id = 'avatars' and owner = auth.uid());

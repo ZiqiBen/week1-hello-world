@@ -1,5 +1,7 @@
 import { connection } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { AuthPanel } from "./components/AuthPanel";
 
 type Pattern = {
   id: number;
@@ -57,6 +59,27 @@ export default async function Home() {
 
   const categories = [...new Set(patterns.map((pattern) => pattern.category))];
 
+  let userEmail: string | null = null;
+  let profileComplete = false;
+  try {
+    const authClient = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await authClient.auth.getUser();
+    userEmail = user?.email ?? null;
+
+    if (user) {
+      const { data: profile } = await authClient
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("id", user.id)
+        .single<{ first_name: string | null; last_name: string | null }>();
+      profileComplete = Boolean(profile?.first_name && profile?.last_name);
+    }
+  } catch {
+    userEmail = null;
+  }
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#05070d] text-slate-100">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(16,185,129,0.18),transparent_30%),radial-gradient(circle_at_85%_10%,rgba(59,130,246,0.14),transparent_32%),linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:auto,auto,42px_42px,42px_42px]" />
@@ -66,9 +89,12 @@ export default async function Home() {
             <p className="font-mono text-xs uppercase tracking-[0.35em] text-emerald-300">Supabase Pattern Library</p>
             <span className="mt-2 block text-lg font-semibold tracking-tight">Algorithm Pattern Atlas</span>
           </div>
-          <span className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-xs font-medium text-emerald-200 shadow-[0_0_30px_rgba(16,185,129,0.16)]">
-            {unavailable ? "Offline" : `${patterns.length} live rows`}
-          </span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-xs font-medium text-emerald-200 shadow-[0_0_30px_rgba(16,185,129,0.16)]">
+              {unavailable ? "Offline" : `${patterns.length} live rows`}
+            </span>
+            <AuthPanel email={userEmail} profileComplete={profileComplete} />
+          </div>
         </header>
 
         <section aria-labelledby="page-title" className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
