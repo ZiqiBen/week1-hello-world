@@ -15,19 +15,19 @@ type Pattern = {
 };
 
 const categoryStyles: Record<string, string> = {
-  Arrays: "border-cyan-400/30 bg-cyan-400/10 text-cyan-200",
-  Trees: "border-emerald-400/30 bg-emerald-400/10 text-emerald-200",
-  Graphs: "border-violet-400/30 bg-violet-400/10 text-violet-200",
-  "Dynamic Programming": "border-rose-400/30 bg-rose-400/10 text-rose-200",
-  Search: "border-amber-400/30 bg-amber-400/10 text-amber-200",
-  "Data Structures": "border-sky-400/30 bg-sky-400/10 text-sky-200",
-  Stacks: "border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-200",
-  Recursion: "border-lime-400/30 bg-lime-400/10 text-lime-200",
-  Strings: "border-orange-400/30 bg-orange-400/10 text-orange-200",
+  Arrays: "text-[#7dd3fc]",
+  Trees: "text-[#86efac]",
+  Graphs: "text-[#c4b5fd]",
+  "Dynamic Programming": "text-[#fda4af]",
+  Search: "text-[#fde68a]",
+  "Data Structures": "text-[#93c5fd]",
+  Stacks: "text-[#f0abfc]",
+  Recursion: "text-[#bef264]",
+  Strings: "text-[#fdba74]",
 };
 
 function categoryClass(category: string) {
-  return categoryStyles[category] ?? "border-slate-400/30 bg-slate-400/10 text-slate-200";
+  return categoryStyles[category] ?? "text-[#a1a1a6]";
 }
 
 export default async function Home() {
@@ -81,62 +81,55 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#05070d] text-slate-100">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(16,185,129,0.18),transparent_30%),radial-gradient(circle_at_85%_10%,rgba(59,130,246,0.14),transparent_32%),linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:auto,auto,42px_42px,42px_42px]" />
-      <div className="relative mx-auto w-full max-w-7xl px-6 py-8 sm:px-10 sm:py-12">
-        <header className="mb-12 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
+    <main className="page-shell">
+      <div className="page-wrap">
+        <header className="mb-20 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.35em] text-emerald-300">Supabase Pattern Library</p>
-            <span className="mt-2 block text-lg font-semibold tracking-tight">Algorithm Pattern Atlas</span>
+            <span className="text-lg font-semibold tracking-tight">Pattern</span>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-xs font-medium text-emerald-200 shadow-[0_0_30px_rgba(16,185,129,0.16)]">
-              {unavailable ? "Offline" : `${patterns.length} live rows`}
+            <span className="hidden text-sm text-[#6e6e73] sm:inline">
+              {unavailable ? "Unavailable" : `${patterns.length} patterns`}
             </span>
             <AuthPanel email={userEmail} profileComplete={profileComplete} />
           </div>
         </header>
 
-        <section aria-labelledby="page-title" className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
+        <section aria-labelledby="page-title" className="mx-auto max-w-5xl pb-8 pt-8 text-center sm:pt-16">
           <div>
-            <p className="mb-4 font-mono text-xs font-semibold uppercase tracking-[0.35em] text-cyan-300">Interview Playbook</p>
-            <h1 id="page-title" className="max-w-4xl text-5xl font-semibold leading-tight tracking-tight text-white sm:text-7xl">
-              A dark atlas for decoding coding problems.
+            <p className="mb-5 text-sm font-medium text-[#2997ff]">Your interview pattern library</p>
+            <h1 id="page-title" className="text-5xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#f5f5f7] sm:text-7xl lg:text-8xl">
+              See the pattern.<br />Solve the problem.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-              Each card stores a pattern, a trigger for when to use it, one representative problem, and the mistake that usually breaks the solution.
+            <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-[#a1a1a6] sm:text-xl">
+              A focused collection of reusable ideas for coding interviews—when to use them, how they work, and where they fail.
             </p>
           </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 backdrop-blur">
-            <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="surface mx-auto mt-12 max-w-3xl p-7">
+            <div className="grid grid-cols-3 divide-x divide-white/[0.08] text-center">
               <div>
                 <div className="text-3xl font-semibold text-white">{patterns.length}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">patterns</div>
+                <div className="mt-1 text-sm text-[#86868b]">Patterns</div>
               </div>
               <div>
                 <div className="text-3xl font-semibold text-white">{categories.length}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">domains</div>
+                <div className="mt-1 text-sm text-[#86868b]">Topics</div>
               </div>
               <div>
-                <div className="text-3xl font-semibold text-white">1</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">database</div>
+                <div className="text-3xl font-semibold text-white">Live</div>
+                <div className="mt-1 text-sm text-[#86868b]">Community</div>
               </div>
-            </div>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {categories.slice(0, 8).map((category) => (
-                <span key={category} className={`rounded-full border px-3 py-1 text-xs ${categoryClass(category)}`}>
-                  {category}
-                </span>
-              ))}
             </div>
           </div>
         </section>
 
-        <section className="mt-14" aria-label="Algorithm pattern cards">
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <h2 className="text-xl font-semibold text-white">Pattern cards</h2>
-            {!unavailable && <span className="font-mono text-sm text-slate-400">Fetched from Supabase</span>}
+        <section className="mt-24" aria-label="Algorithm pattern cards">
+          <div className="mb-7 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-[#2997ff]">Library</p>
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">Patterns worth remembering</h2>
+            </div>
+            {!unavailable && <span className="hidden text-sm text-[#6e6e73] sm:block">Updated from Supabase</span>}
           </div>
 
           {unavailable ? (
@@ -148,38 +141,38 @@ export default async function Home() {
           ) : (
             <ul className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {patterns.map((pattern) => (
-                <li key={pattern.id} className="group rounded-3xl border border-white/10 bg-white/[0.045] p-6 shadow-xl shadow-black/20 backdrop-blur transition duration-200 hover:-translate-y-1 hover:border-emerald-300/35 hover:bg-white/[0.07]">
+                <li key={pattern.id} className="group surface p-6 transition duration-300 hover:-translate-y-1 hover:border-white/[0.16] hover:bg-[#151517]">
                   <div className="mb-6 flex items-center justify-between gap-3">
-                    <span className="font-mono text-xs text-slate-500">#{String(pattern.id).padStart(2, "0")}</span>
-                    <span className={`rounded-full border px-3 py-1 text-xs ${categoryClass(pattern.category)}`}>{pattern.category}</span>
+                    <span className="text-xs text-[#6e6e73]">{String(pattern.id).padStart(2, "0")}</span>
+                    <span className={`rounded-full bg-white/[0.06] px-3 py-1 text-xs font-medium ${categoryClass(pattern.category)}`}>{pattern.category}</span>
                   </div>
                   <h3 className="text-xl font-semibold tracking-tight text-white">{pattern.name}</h3>
-                  <p className="mt-3 text-sm leading-7 text-slate-300">{pattern.core_idea}</p>
+                  <p className="mt-3 text-sm leading-7 text-[#a1a1a6]">{pattern.core_idea}</p>
                   <dl className="mt-6 grid gap-4 text-sm">
                     <div>
-                      <dt className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-300">Use when</dt>
-                      <dd className="mt-2 leading-6 text-slate-300">{pattern.when_to_use}</dd>
+                      <dt className="text-xs font-medium text-[#86868b]">When to use it</dt>
+                      <dd className="mt-2 leading-6 text-[#d2d2d7]">{pattern.when_to_use}</dd>
                     </div>
                     <div className="grid gap-4">
-                      <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                        <dt className="font-mono text-xs uppercase tracking-[0.2em] text-cyan-300">Example</dt>
-                        <dd className="mt-2 leading-6 text-slate-300">{pattern.example_problem}</dd>
+                      <div className="rounded-2xl bg-black/40 p-4">
+                        <dt className="text-xs font-medium text-[#86868b]">Example</dt>
+                        <dd className="mt-2 leading-6 text-[#d2d2d7]">{pattern.example_problem}</dd>
                       </div>
-                      <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                        <dt className="font-mono text-xs uppercase tracking-[0.2em] text-rose-300">Trap</dt>
-                        <dd className="mt-2 leading-6 text-slate-300">{pattern.common_trap}</dd>
+                      <div className="rounded-2xl bg-black/40 p-4">
+                        <dt className="text-xs font-medium text-[#ff453a]">Common mistake</dt>
+                        <dd className="mt-2 leading-6 text-[#d2d2d7]">{pattern.common_trap}</dd>
                       </div>
                     </div>
                   </dl>
-                  <div className="mt-6 border-t border-white/10 pt-4 font-mono text-xs uppercase tracking-[0.18em] text-slate-500">Confidence: {pattern.confidence}</div>
+                  <div className="mt-6 border-t border-white/[0.08] pt-4 text-xs text-[#6e6e73]">Confidence · {pattern.confidence}</div>
                 </li>
               ))}
             </ul>
           )}
         </section>
 
-        <footer className="mt-14 border-t border-white/10 pt-6 text-sm text-slate-500">
-          Patterns are easier to remember when each one has a job, a trigger, and a warning label.
+        <footer className="mt-24 border-t border-white/[0.08] py-8 text-sm text-[#6e6e73]">
+          Pattern · Built for focused interview practice.
         </footer>
       </div>
     </main>
