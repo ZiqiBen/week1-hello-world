@@ -9,11 +9,16 @@ type AuthPanelProps = {
 export function AuthPanel({ email, profileComplete }: AuthPanelProps) {
   if (!email) {
     return (
-      <form action={signInWithGoogle}>
-        <button className="rounded-full border border-cyan-300/40 bg-cyan-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100 transition hover:bg-cyan-300/20">
-          Sign in with Google
-        </button>
-      </form>
+      <div className="flex flex-wrap items-center gap-3">
+        <Link href="/ai-coach" className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-100">
+          AI coach
+        </Link>
+        <form action={signInWithGoogle}>
+          <button className="rounded-full border border-cyan-300/40 bg-cyan-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100 transition hover:bg-cyan-300/20">
+            Sign in with Google
+          </button>
+        </form>
+      </div>
     );
   }
 
@@ -24,6 +29,9 @@ export function AuthPanel({ email, profileComplete }: AuthPanelProps) {
           Complete profile
         </Link>
       )}
+      <Link href="/ai-coach" className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-100">
+        AI coach
+      </Link>
       <Link href="/study-plan" className="rounded-full border border-emerald-300/35 bg-emerald-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-100">
         Study plan
       </Link>

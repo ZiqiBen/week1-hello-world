@@ -10,6 +10,64 @@ function clean(value: FormDataEntryValue | null) {
   return text.length > 0 ? text : null;
 }
 
+const fallbackCards: Record<string, string> = {
+  Arrays:
+    "Scan for a repeated window condition: maintain a left pointer, update counts as the right pointer moves, and shrink only when the window already satisfies the rule. Trap: changing both pointers before recording the answer.",
+  Trees:
+    "Ask what information each subtree should return to its parent. For DFS, solve the child problem first, then combine the answers at the current node. Trap: using global state when the return value would be cleaner.",
+  Graphs:
+    "Turn the problem into nodes and edges, then decide whether BFS gives shortest steps or DFS gives full exploration. Trap: forgetting a visited set and revisiting the same state.",
+  "Dynamic Programming":
+    "Define the state in plain English before writing code: dp[i] should mean the best answer using the first i items or ending at i. Trap: coding the recurrence before knowing what each cell represents.",
+  Search:
+    "When the answer is monotonic, binary search the answer instead of scanning every possibility. Trap: updating the wrong boundary when the feasibility check returns true.",
+  Stacks:
+    "Use a stack when the newest unresolved item should be handled first, such as matching brackets or next greater elements. Trap: popping before checking whether the stack is empty.",
+  Recursion:
+    "Write the base case first, then trust the recursive call to solve the smaller version. Trap: mutating shared lists without undoing the choice during backtracking.",
+};
+
+async function buildStudyCard(category: string, prompt: string) {
+  const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const systemPrompt = `You are an interview coach for Columbia students practicing LeetCode. Generate one concise, useful AI study card for the category "${category}". The user prompt is: "${prompt}". Keep it under 90 words. Include a concrete trigger, a tiny strategy, and one common trap. Do not use markdown headings.`;
+
+  if (!apiKey) {
+    const base = fallbackCards[category] ?? fallbackCards.Arrays;
+    return `${base} Prompt focus: ${prompt}`;
+  }
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: systemPrompt }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.8,
+          maxOutputTokens: 160,
+        },
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const base = fallbackCards[category] ?? fallbackCards.Arrays;
+    return `${base} Prompt focus: ${prompt}`;
+  }
+
+  const data = await response.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  return typeof text === "string" && text.trim().length > 0
+    ? text.trim()
+    : `${fallbackCards[category] ?? fallbackCards.Arrays} Prompt focus: ${prompt}`;
+}
+
 export async function signInWithGoogle() {
   const supabase = await createSupabaseServerClient();
   const headerStore = await headers();
@@ -75,4 +133,62 @@ export async function updateProfile(formData: FormData) {
   revalidatePath("/profile");
   revalidatePath("/study-plan");
   redirect("/profile?saved=1");
+}
+
+export async function createAiGeneration(formData: FormData) {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const category = clean(formData.get("category")) ?? "Arrays";
+  const prompt = clean(formData.get("prompt")) ?? "Give me one useful LeetCode interview study tip.";
+  const generatedText = await buildStudyCard(category, prompt);
+
+  await supabase.from("ai_generations").insert({
+    user_id: user.id,
+    category,
+    prompt,
+    generated_text: generatedText,
+  });
+
+  revalidatePath("/");
+  revalidatePath("/ai-coach");
+  redirect("/ai-coach?generated=1");
+}
+
+export async function voteOnGeneration(formData: FormData) {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const generationId = clean(formData.get("generation_id"));
+  const voteText = clean(formData.get("vote"));
+  const vote = voteText === "-1" ? -1 : 1;
+
+  if (!generationId) {
+    redirect("/ai-coach");
+  }
+
+  await supabase.from("generation_votes").upsert(
+    {
+      generation_id: generationId,
+      user_id: user.id,
+      vote,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "generation_id,user_id" },
+  );
+
+  revalidatePath("/ai-coach");
+  redirect("/ai-coach?voted=1");
 }
