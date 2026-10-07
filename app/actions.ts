@@ -32,53 +32,60 @@ function getSiteUrl(origin: string | null) {
 
 async function buildStudyCard(category: string, prompt: string) {
   const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  const model = "gemini-3.1-flash-lite";
+  const models = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"];
   const systemPrompt = `You are a precise computer science tutor for a Columbia undergraduate. Category: "${category}". Question: "${prompt}". Write a self-contained answer of 90 to 140 words. First answer the exact question in plain English. Then give a small concrete example. End with one common mistake or limitation. Use complete sentences. Do not use markdown headings, filler, or repeat the question.`;
 
   if (!apiKey) {
     throw new Error("Gemini API key is not configured");
   }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 12000);
-  let response: Response;
-  try {
-    response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
-          generationConfig: {
-            temperature: 0.45,
-            maxOutputTokens: 512,
-            thinkingConfig: { thinkingBudget: 0 },
-          },
-        }),
-      },
-    );
-  } catch {
-    throw new Error("Gemini request timed out");
-  } finally {
-    clearTimeout(timeout);
+  const failures: string[] = [];
+
+  for (const model of models) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
+            generationConfig: {
+              temperature: 0.45,
+              maxOutputTokens: 512,
+            },
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        const details = await response.text();
+        failures.push(`${model}: HTTP ${response.status}`);
+        console.error("Gemini API error", model, response.status, details);
+        continue;
+      }
+
+      const data = await response.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (typeof text === "string" && text.trim().length >= 120) {
+        return text.trim();
+      }
+
+      failures.push(`${model}: incomplete response`);
+      console.error("Gemini returned an incomplete response", model, JSON.stringify(data));
+    } catch (error) {
+      failures.push(`${model}: request failed`);
+      console.error("Gemini request failed", model, error);
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
-  if (!response.ok) {
-    const details = await response.text();
-    console.error("Gemini API error", response.status, details);
-    throw new Error("Gemini API request failed");
-  }
-
-  const data = await response.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (typeof text !== "string" || text.trim().length < 120) {
-    console.error("Gemini returned an incomplete response", JSON.stringify(data));
-    throw new Error("Gemini returned an incomplete response");
-  }
-
-  return text.trim();
+  throw new Error(`All Gemini models failed: ${failures.join("; ")}`);
 }
 
 export async function signInWithGoogle() {
