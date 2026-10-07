@@ -115,7 +115,10 @@ export default async function AiCoachPage() {
                     <li key={card.id} className="rounded-3xl border border-white/10 bg-black/20 p-5">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <span className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">{card.category}</span>
-                        <span className="text-xs text-slate-500">by {authorName(card)}</span>
+                        <span className="text-right text-xs text-slate-500">
+                          <span className="block">by {authorName(card)}</span>
+                          <time dateTime={card.created_at}>Generated {new Date(card.created_at).toLocaleString()}</time>
+                        </span>
                       </div>
                       <p className="mt-4 text-sm leading-7 text-slate-200">{card.generated_text}</p>
                       <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.035] p-4">

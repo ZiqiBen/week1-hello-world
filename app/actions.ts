@@ -30,6 +30,18 @@ function getSiteUrl(origin: string | null) {
   return origin ?? "http://localhost:3000";
 }
 
+function usefulFallback(category: string, prompt: string) {
+  const lower = prompt.toLowerCase();
+  if (category === "Arrays" && lower.includes("two pointer")) {
+    return "Yes. Use two pointers when the array has an order or a condition that lets one pointer move past impossible choices. For a sorted pair-sum problem, start at the ends: if the sum is too small, move left forward; if it is too large, move right backward. Each element is visited at most once, so the time is O(n). Trap: this logic is not valid for an unsorted array unless you sort it first.";
+  }
+  if (category === "Arrays" && lower.includes("what is array")) {
+    return "An array stores values in a fixed sequence, so each item can be reached by its index. Reading or updating arr[i] is usually O(1), while inserting near the front can be O(n) because later values must shift. Use an array when you need fast indexed access and mostly append or scan values. Trap: an index must stay between 0 and length - 1.";
+  }
+  const base = fallbackCards[category] ?? fallbackCards.Arrays;
+  return `${base} Apply that idea specifically to this request: ${prompt}`;
+}
+
 const fallbackCards: Record<string, string> = {
   Arrays:
     "Scan for a repeated window condition: maintain a left pointer, update counts as the right pointer moves, and shrink only when the window already satisfies the rule. Trap: changing both pointers before recording the answer.",
@@ -53,40 +65,40 @@ async function buildStudyCard(category: string, prompt: string) {
   const systemPrompt = `You are an interview coach for Columbia students practicing LeetCode. Answer the user's request directly and completely in 50 to 90 words. Category: "${category}". User request: "${prompt}". Give one concrete explanation, a tiny strategy or example, and one common trap. Do not begin with "Yes" or "Absolutely". Do not use markdown headings.`;
 
   if (!apiKey) {
-    const base = fallbackCards[category] ?? fallbackCards.Arrays;
-    return `${base} Prompt focus: ${prompt}`;
+    return usefulFallback(category, prompt);
   }
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: systemPrompt }],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.8,
-          maxOutputTokens: 160,
-        },
-      }),
-    },
-  );
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  let response: Response;
+  try {
+    response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
+          generationConfig: { temperature: 0.8, maxOutputTokens: 160 },
+        }),
+      },
+    );
+  } catch {
+    return usefulFallback(category, prompt);
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
-    const base = fallbackCards[category] ?? fallbackCards.Arrays;
-    return `${base} Prompt focus: ${prompt}`;
+    return usefulFallback(category, prompt);
   }
 
   const data = await response.json();
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
   return typeof text === "string" && text.trim().length > 0
     ? text.trim()
-    : `${fallbackCards[category] ?? fallbackCards.Arrays} Prompt focus: ${prompt}`;
+    : usefulFallback(category, prompt);
 }
 
 export async function signInWithGoogle() {
