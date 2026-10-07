@@ -50,7 +50,7 @@ const fallbackCards: Record<string, string> = {
 async function buildStudyCard(category: string, prompt: string) {
   const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   const model = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
-  const systemPrompt = `You are an interview coach for Columbia students practicing LeetCode. Generate one concise, useful AI study card for the category "${category}". The user prompt is: "${prompt}". Keep it under 90 words. Include a concrete trigger, a tiny strategy, and one common trap. Do not use markdown headings.`;
+  const systemPrompt = `You are an interview coach for Columbia students practicing LeetCode. Answer the user's request directly and completely in 50 to 90 words. Category: "${category}". User request: "${prompt}". Give one concrete explanation, a tiny strategy or example, and one common trap. Do not begin with "Yes" or "Absolutely". Do not use markdown headings.`;
 
   if (!apiKey) {
     const base = fallbackCards[category] ?? fallbackCards.Arrays;

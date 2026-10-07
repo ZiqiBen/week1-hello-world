@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createAiGeneration, signInWithGoogle, voteOnGeneration } from "../actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import GenerateButton from "../components/GenerateButton";
 
 type AiGeneration = {
   id: string;
@@ -81,9 +82,7 @@ export default async function AiCoachPage() {
                     placeholder="Give me a short study card for a Columbia student who keeps missing binary search edge cases."
                   />
                 </label>
-                <button className="rounded-2xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-200">
-                  Generate AI card
-                </button>
+                <GenerateButton />
               </form>
             ) : (
               <div className="mt-6 rounded-2xl border border-amber-300/25 bg-amber-300/10 p-5 text-amber-100">
