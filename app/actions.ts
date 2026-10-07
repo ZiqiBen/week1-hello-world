@@ -10,6 +10,26 @@ function clean(value: FormDataEntryValue | null) {
   return text.length > 0 ? text : null;
 }
 
+function getSiteUrl(origin: string | null) {
+  if (origin && !origin.includes("localhost")) {
+    return origin;
+  }
+
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return origin ?? "http://localhost:3000";
+}
+
 const fallbackCards: Record<string, string> = {
   Arrays:
     "Scan for a repeated window condition: maintain a left pointer, update counts as the right pointer moves, and shrink only when the window already satisfies the rule. Trap: changing both pointers before recording the answer.",
@@ -71,7 +91,7 @@ async function buildStudyCard(category: string, prompt: string) {
 export async function signInWithGoogle() {
   const supabase = await createSupabaseServerClient();
   const headerStore = await headers();
-  const origin = headerStore.get("origin") ?? "http://localhost:3000";
+  const origin = getSiteUrl(headerStore.get("origin"));
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
