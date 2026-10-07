@@ -22,7 +22,12 @@ function authorName(card: AiGeneration) {
   return first ? `${first}${last ? ` ${last}` : ""}` : "Atlas member";
 }
 
-export default async function AiCoachPage() {
+export default async function AiCoachPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -65,6 +70,11 @@ export default async function AiCoachPage() {
 
             {user ? (
               <form action={createAiGeneration} className="mt-6 grid gap-5">
+                {error === "generation" ? (
+                  <p role="alert" className="rounded-2xl border border-rose-300/30 bg-rose-300/10 p-4 text-sm leading-6 text-rose-100">
+                    Gemini could not generate a complete answer. Please try again. No incomplete card was saved.
+                  </p>
+                ) : null}
                 <label className="grid gap-2 text-sm text-slate-300">
                   Pattern category
                   <select name="category" className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition focus:border-cyan-300/50">

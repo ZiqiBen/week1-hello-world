@@ -30,46 +30,17 @@ function getSiteUrl(origin: string | null) {
   return origin ?? "http://localhost:3000";
 }
 
-function usefulFallback(category: string, prompt: string) {
-  const lower = prompt.toLowerCase();
-  if (category === "Arrays" && lower.includes("two pointer")) {
-    return "Yes. Use two pointers when the array has an order or a condition that lets one pointer move past impossible choices. For a sorted pair-sum problem, start at the ends: if the sum is too small, move left forward; if it is too large, move right backward. Each element is visited at most once, so the time is O(n). Trap: this logic is not valid for an unsorted array unless you sort it first.";
-  }
-  if (category === "Arrays" && lower.includes("what is array")) {
-    return "An array stores values in a fixed sequence, so each item can be reached by its index. Reading or updating arr[i] is usually O(1), while inserting near the front can be O(n) because later values must shift. Use an array when you need fast indexed access and mostly append or scan values. Trap: an index must stay between 0 and length - 1.";
-  }
-  const base = fallbackCards[category] ?? fallbackCards.Arrays;
-  return `${base} Apply that idea specifically to this request: ${prompt}`;
-}
-
-const fallbackCards: Record<string, string> = {
-  Arrays:
-    "Scan for a repeated window condition: maintain a left pointer, update counts as the right pointer moves, and shrink only when the window already satisfies the rule. Trap: changing both pointers before recording the answer.",
-  Trees:
-    "Ask what information each subtree should return to its parent. For DFS, solve the child problem first, then combine the answers at the current node. Trap: using global state when the return value would be cleaner.",
-  Graphs:
-    "Turn the problem into nodes and edges, then decide whether BFS gives shortest steps or DFS gives full exploration. Trap: forgetting a visited set and revisiting the same state.",
-  "Dynamic Programming":
-    "Define the state in plain English before writing code: dp[i] should mean the best answer using the first i items or ending at i. Trap: coding the recurrence before knowing what each cell represents.",
-  Search:
-    "When the answer is monotonic, binary search the answer instead of scanning every possibility. Trap: updating the wrong boundary when the feasibility check returns true.",
-  Stacks:
-    "Use a stack when the newest unresolved item should be handled first, such as matching brackets or next greater elements. Trap: popping before checking whether the stack is empty.",
-  Recursion:
-    "Write the base case first, then trust the recursive call to solve the smaller version. Trap: mutating shared lists without undoing the choice during backtracking.",
-};
-
 async function buildStudyCard(category: string, prompt: string) {
   const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  const model = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
-  const systemPrompt = `You are an interview coach for Columbia students practicing LeetCode. Answer the user's request directly and completely in 50 to 90 words. Category: "${category}". User request: "${prompt}". Give one concrete explanation, a tiny strategy or example, and one common trap. Do not begin with "Yes" or "Absolutely". Do not use markdown headings.`;
+  const model = "gemini-3.1-flash-lite";
+  const systemPrompt = `You are a precise computer science tutor for a Columbia undergraduate. Category: "${category}". Question: "${prompt}". Write a self-contained answer of 90 to 140 words. First answer the exact question in plain English. Then give a small concrete example. End with one common mistake or limitation. Use complete sentences. Do not use markdown headings, filler, or repeat the question.`;
 
   if (!apiKey) {
-    return usefulFallback(category, prompt);
+    throw new Error("Gemini API key is not configured");
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  const timeout = setTimeout(() => controller.abort(), 12000);
   let response: Response;
   try {
     response = await fetch(
@@ -80,25 +51,34 @@ async function buildStudyCard(category: string, prompt: string) {
         signal: controller.signal,
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ text: systemPrompt }] }],
-          generationConfig: { temperature: 0.8, maxOutputTokens: 160 },
+          generationConfig: {
+            temperature: 0.45,
+            maxOutputTokens: 512,
+            thinkingConfig: { thinkingBudget: 0 },
+          },
         }),
       },
     );
   } catch {
-    return usefulFallback(category, prompt);
+    throw new Error("Gemini request timed out");
   } finally {
     clearTimeout(timeout);
   }
 
   if (!response.ok) {
-    return usefulFallback(category, prompt);
+    const details = await response.text();
+    console.error("Gemini API error", response.status, details);
+    throw new Error("Gemini API request failed");
   }
 
   const data = await response.json();
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  return typeof text === "string" && text.trim().length > 0
-    ? text.trim()
-    : usefulFallback(category, prompt);
+  if (typeof text !== "string" || text.trim().length < 120) {
+    console.error("Gemini returned an incomplete response", JSON.stringify(data));
+    throw new Error("Gemini returned an incomplete response");
+  }
+
+  return text.trim();
 }
 
 export async function signInWithGoogle() {
@@ -180,7 +160,13 @@ export async function createAiGeneration(formData: FormData) {
 
   const category = clean(formData.get("category")) ?? "Arrays";
   const prompt = clean(formData.get("prompt")) ?? "Give me one useful LeetCode interview study tip.";
-  const generatedText = await buildStudyCard(category, prompt);
+  let generatedText: string;
+  try {
+    generatedText = await buildStudyCard(category, prompt);
+  } catch (error) {
+    console.error("AI card generation failed", error);
+    redirect("/ai-coach?error=generation");
+  }
 
   await supabase.from("ai_generations").insert({
     user_id: user.id,
