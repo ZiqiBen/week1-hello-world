@@ -16,6 +16,16 @@ type AiGeneration = {
 
 const categories = ["Arrays", "Trees", "Graphs", "Dynamic Programming", "Search", "Stacks", "Recursion"];
 
+const newYorkTime = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York",
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  timeZoneName: "short",
+});
+
 function authorName(card: AiGeneration) {
   const first = card.profiles?.first_name;
   const last = card.profiles?.last_name;
@@ -127,7 +137,7 @@ export default async function AiCoachPage({
                         <span className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">{card.category}</span>
                         <span className="text-right text-xs text-slate-500">
                           <span className="block">by {authorName(card)}</span>
-                          <time dateTime={card.created_at}>Generated {new Date(card.created_at).toLocaleString()}</time>
+                          <time dateTime={card.created_at}>Generated {newYorkTime.format(new Date(card.created_at))}</time>
                         </span>
                       </div>
                       <p className="mt-4 text-sm leading-7 text-slate-200">{card.generated_text}</p>
