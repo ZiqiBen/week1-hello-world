@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
-  --foreground: #f5f5f7;
+  --background: #070b14;
+  --foreground: #f4f7fb;
+  --surface: #101722;
+  --surface-hover: #141e2c;
+  --surface-soft: #0b111b;
+  --border: #223147;
+  --muted: #9aa7b8;
+  --subtle: #6f7e91;
+  --accent: #63a9ff;
 }
 
 @theme inline {
@@ -20,12 +27,25 @@ body {
 }
 
 ::selection {
-  background: rgba(41, 151, 255, 0.35);
+  background: rgba(99, 169, 255, 0.35);
+}
+
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+html {
+  color-scheme: dark;
+  scrollbar-color: #33445d var(--background);
 }
 
 @layer components {
   .page-shell {
-    @apply min-h-screen bg-black text-[#f5f5f7];
+    @apply min-h-screen text-[#f4f7fb];
+    background:
+      radial-gradient(circle at 50% -10%, rgba(63, 124, 194, 0.15), transparent 34rem),
+      var(--background);
   }
 
   .page-wrap {
@@ -33,30 +53,48 @@ body {
   }
 
   .surface {
-    @apply rounded-[28px] border border-white/[0.09] bg-[#101012] shadow-[0_24px_80px_rgba(0,0,0,0.35)];
+    @apply rounded-3xl border shadow-[0_24px_80px_rgba(0,0,0,0.26)];
+    border-color: var(--border);
+    background: var(--surface);
   }
 
   .surface-soft {
-    @apply rounded-3xl border border-white/[0.08] bg-[#0a0a0b];
+    @apply rounded-2xl border;
+    border-color: var(--border);
+    background: var(--surface-soft);
   }
 
   .nav-link {
-    @apply rounded-full px-4 py-2 text-sm font-medium text-[#a1a1a6] transition hover:bg-white/[0.07] hover:text-white;
+    @apply inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition hover:bg-white/[0.07] hover:text-white;
+    color: var(--muted);
   }
 
   .nav-link-strong {
-    @apply rounded-full bg-[#f5f5f7] px-4 py-2 text-sm font-semibold text-black transition hover:bg-white;
+    @apply inline-flex min-h-11 items-center rounded-full bg-[#f4f7fb] px-4 py-2 text-sm font-semibold text-[#070b14] transition hover:bg-white;
   }
 
   .primary-button {
-    @apply rounded-full bg-[#2997ff] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#45a5ff] disabled:cursor-wait disabled:opacity-60;
+    @apply min-h-11 rounded-full bg-[#4295f5] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#63a9ff] disabled:cursor-wait disabled:opacity-60;
   }
 
   .secondary-button {
-    @apply rounded-full border border-white/[0.12] bg-white/[0.04] px-5 py-3 text-sm font-medium text-[#f5f5f7] transition hover:bg-white/[0.08];
+    @apply min-h-11 rounded-full border border-white/[0.12] bg-white/[0.04] px-5 py-3 text-sm font-medium text-[#f4f7fb] transition hover:bg-white/[0.08];
   }
 
   .field {
-    @apply rounded-2xl border border-white/[0.1] bg-[#070708] px-4 py-3 text-[#f5f5f7] outline-none transition placeholder:text-[#6e6e73] focus:border-[#2997ff]/70 focus:ring-4 focus:ring-[#2997ff]/10;
+    @apply min-h-11 rounded-2xl border px-4 py-3 text-[#f4f7fb] outline-none transition placeholder:text-[#6f7e91] focus:border-[#63a9ff]/70 focus:ring-4 focus:ring-[#63a9ff]/10;
+    border-color: var(--border);
+    background: var(--surface-soft);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

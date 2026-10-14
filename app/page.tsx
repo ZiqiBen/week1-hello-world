@@ -97,7 +97,6 @@ export default async function Home() {
 
         <section aria-labelledby="page-title" className="mx-auto max-w-5xl pb-8 pt-8 text-center sm:pt-16">
           <div>
-            <p className="mb-5 text-sm font-medium text-[#2997ff]">Your interview pattern library</p>
             <h1 id="page-title" className="text-5xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#f5f5f7] sm:text-7xl lg:text-8xl">
               See the pattern.<br />Solve the problem.
             </h1>
@@ -126,8 +125,8 @@ export default async function Home() {
         <section className="mt-24" aria-label="Algorithm pattern cards">
           <div className="mb-7 flex items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-[#2997ff]">Library</p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">Patterns worth remembering</h2>
+              <h2 className="text-3xl font-semibold tracking-tight text-white">Patterns worth remembering</h2>
+              <p className="mt-2 text-sm text-[#9aa7b8]">A practical reference for recognizing common problem shapes.</p>
             </div>
             {!unavailable && <span className="hidden text-sm text-[#6e6e73] sm:block">Updated from Supabase</span>}
           </div>
@@ -141,7 +140,7 @@ export default async function Home() {
           ) : (
             <ul className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {patterns.map((pattern) => (
-                <li key={pattern.id} className="group surface p-6 transition duration-300 hover:-translate-y-1 hover:border-white/[0.16] hover:bg-[#151517]">
+                <li key={pattern.id} className="group surface flex h-full flex-col p-6 transition duration-300 hover:-translate-y-1 hover:border-[#334966] hover:bg-[#141e2c]">
                   <div className="mb-6 flex items-center justify-between gap-3">
                     <span className="text-xs text-[#6e6e73]">{String(pattern.id).padStart(2, "0")}</span>
                     <span className={`rounded-full bg-white/[0.06] px-3 py-1 text-xs font-medium ${categoryClass(pattern.category)}`}>{pattern.category}</span>
@@ -153,18 +152,18 @@ export default async function Home() {
                       <dt className="text-xs font-medium text-[#86868b]">When to use it</dt>
                       <dd className="mt-2 leading-6 text-[#d2d2d7]">{pattern.when_to_use}</dd>
                     </div>
-                    <div className="grid gap-4">
-                      <div className="rounded-2xl bg-black/40 p-4">
+                    <div className="grid border-t border-white/[0.08]">
+                      <div className="py-4">
                         <dt className="text-xs font-medium text-[#86868b]">Example</dt>
                         <dd className="mt-2 leading-6 text-[#d2d2d7]">{pattern.example_problem}</dd>
                       </div>
-                      <div className="rounded-2xl bg-black/40 p-4">
+                      <div className="border-t border-white/[0.08] py-4">
                         <dt className="text-xs font-medium text-[#ff453a]">Common mistake</dt>
                         <dd className="mt-2 leading-6 text-[#d2d2d7]">{pattern.common_trap}</dd>
                       </div>
                     </div>
                   </dl>
-                  <div className="mt-6 border-t border-white/[0.08] pt-4 text-xs text-[#6e6e73]">Confidence · {pattern.confidence}</div>
+                  <div className="mt-auto border-t border-white/[0.08] pt-4 text-xs text-[#6f7e91]">Confidence · {pattern.confidence}</div>
                 </li>
               ))}
             </ul>

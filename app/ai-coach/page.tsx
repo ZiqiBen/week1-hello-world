@@ -64,8 +64,7 @@ export default async function AiCoachPage({
         </div>
 
         <section className="mx-auto max-w-4xl py-10 text-center">
-          <p className="text-sm font-medium text-[#2997ff]">Community coach</p>
-          <h1 className="mt-4 text-5xl font-semibold leading-[1.05] tracking-[-0.04em] text-white sm:text-7xl">Ask a good question.<br />Keep the best answers.</h1>
+          <h1 className="text-5xl font-semibold leading-[1.05] tracking-[-0.04em] text-white sm:text-7xl">Ask a good question.<br />Keep the best answers.</h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[#a1a1a6]">
             Create a concise study card, then let the community decide what is worth remembering.
           </p>
@@ -105,7 +104,7 @@ export default async function AiCoachPage({
                 <GenerateButton />
               </form>
             ) : (
-              <div className="mt-6 rounded-2xl bg-white/[0.05] p-5 text-[#d2d2d7]">
+              <div className="mt-6 border-t border-white/[0.08] pt-5 text-[#d2d2d7]">
                 <p className="text-sm leading-6">Sign in to create cards and vote.</p>
                 <form action={signInWithGoogle} className="mt-4">
                   <button className="primary-button">
@@ -141,7 +140,7 @@ export default async function AiCoachPage({
                         </span>
                       </div>
                       <p className="mt-6 text-[15px] leading-7 text-[#e8e8ed]">{card.generated_text}</p>
-                      <div className="mt-6 rounded-2xl bg-black/40 p-4">
+                      <div className="mt-6 border-l-2 border-[#334966] pl-4">
                         <div className="text-xs font-medium text-[#6e6e73]">Question</div>
                         <p className="mt-2 text-sm leading-6 text-[#a1a1a6]">{card.prompt}</p>
                       </div>
@@ -151,14 +150,14 @@ export default async function AiCoachPage({
                             <form action={voteOnGeneration}>
                               <input type="hidden" name="generation_id" value={card.id} />
                               <input type="hidden" name="vote" value="1" />
-                              <button className={`rounded-full px-4 py-2 text-sm font-medium transition ${currentUserVote === 1 ? "bg-[#30d158] text-black" : "bg-white/[0.06] text-[#d2d2d7] hover:bg-white/[0.1]"}`}>
+                              <button className={`min-h-11 rounded-full px-4 py-2 text-sm font-medium transition ${currentUserVote === 1 ? "bg-[#30d158] text-[#07120a]" : "bg-white/[0.06] text-[#d2d2d7] hover:bg-white/[0.1]"}`}>
                                 Helpful · {upvotes}
                               </button>
                             </form>
                             <form action={voteOnGeneration}>
                               <input type="hidden" name="generation_id" value={card.id} />
                               <input type="hidden" name="vote" value="-1" />
-                              <button className={`rounded-full px-4 py-2 text-sm font-medium transition ${currentUserVote === -1 ? "bg-[#ff453a] text-white" : "bg-white/[0.06] text-[#d2d2d7] hover:bg-white/[0.1]"}`}>
+                              <button className={`min-h-11 rounded-full px-4 py-2 text-sm font-medium transition ${currentUserVote === -1 ? "bg-[#ff453a] text-white" : "bg-white/[0.06] text-[#d2d2d7] hover:bg-white/[0.1]"}`}>
                                 Needs work · {downvotes}
                               </button>
                             </form>
