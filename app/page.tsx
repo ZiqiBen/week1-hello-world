@@ -1,4 +1,5 @@
 import { connection } from "next/server";
+import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthPanel } from "./components/AuthPanel";
@@ -33,9 +34,14 @@ function categoryClass(category: string) {
   return categoryStyles[category] ?? "text-[#a1a1a6]";
 }
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ profile?: string }>;
+}) {
   // Fetch at request time so database changes appear without redeploying.
   await connection();
+  const { profile: profileStatus } = await searchParams;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   let patterns: Pattern[] = [];
@@ -104,6 +110,14 @@ export default async function Home() {
   return (
     <main className="page-shell">
       <div className="page-wrap">
+        {profileStatus === "saved" ? (
+          <div role="status" className="mb-7 flex items-center justify-between gap-4 rounded-2xl border border-[#75d49b]/30 bg-[#75d49b]/10 px-5 py-4 text-sm text-[#b9efcd]">
+            <span>Your profile was saved.</span>
+            <Link href="/" className="rounded-full px-3 py-2 font-medium text-[#dff8e8] transition hover:bg-white/[0.08]">
+              Dismiss
+            </Link>
+          </div>
+        ) : null}
         <header className="mb-20 flex flex-wrap items-center justify-between gap-4">
           <div>
             <span className="text-lg font-semibold tracking-tight">Pattern</span>

@@ -152,7 +152,7 @@ export async function updateProfile(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/profile");
   revalidatePath("/study-plan");
-  redirect("/profile?saved=1");
+  redirect("/?profile=saved");
 }
 
 export async function createAiGeneration(formData: FormData) {
