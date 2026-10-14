@@ -218,3 +218,52 @@ export async function voteOnGeneration(formData: FormData) {
   revalidatePath("/ai-coach");
   redirect("/ai-coach?voted=1");
 }
+
+export async function togglePatternSolved(formData: FormData) {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const patternId = Number(formData.get("pattern_id"));
+  if (!Number.isSafeInteger(patternId) || patternId <= 0) {
+    return;
+  }
+
+  const { data: pattern } = await supabase
+    .from("patterns")
+    .select("id, example_problem")
+    .eq("id", patternId)
+    .single<{ id: number; example_problem: string }>();
+
+  if (!pattern) {
+    return;
+  }
+
+  const { data: existing } = await supabase
+    .from("solved_problems")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("pattern_id", patternId)
+    .maybeSingle<{ id: string }>();
+
+  if (existing) {
+    await supabase
+      .from("solved_problems")
+      .delete()
+      .eq("id", existing.id)
+      .eq("user_id", user.id);
+  } else {
+    await supabase.from("solved_problems").insert({
+      user_id: user.id,
+      pattern_id: patternId,
+      problem_name: pattern.example_problem,
+    });
+  }
+
+  revalidatePath("/");
+}

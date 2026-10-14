@@ -2,6 +2,9 @@ import { connection } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthPanel } from "./components/AuthPanel";
+import { AlgorithmGalaxy } from "./components/AlgorithmGalaxy";
+import { ProgressButton } from "./components/ProgressButton";
+import { togglePatternSolved } from "./actions";
 
 type Pattern = {
   id: number;
@@ -61,6 +64,8 @@ export default async function Home() {
 
   let userEmail: string | null = null;
   let profileComplete = false;
+  let progressUnavailable = false;
+  const solvedPatternIds = new Set<number>();
   try {
     const authClient = await createSupabaseServerClient();
     const {
@@ -69,12 +74,28 @@ export default async function Home() {
     userEmail = user?.email ?? null;
 
     if (user) {
-      const { data: profile } = await authClient
-        .from("profiles")
-        .select("first_name, last_name")
-        .eq("id", user.id)
-        .single<{ first_name: string | null; last_name: string | null }>();
+      const [{ data: profile }, { data: solvedProblems, error: progressError }] = await Promise.all([
+        authClient
+          .from("profiles")
+          .select("first_name, last_name")
+          .eq("id", user.id)
+          .single<{ first_name: string | null; last_name: string | null }>(),
+        authClient
+          .from("solved_problems")
+          .select("pattern_id")
+          .eq("user_id", user.id)
+          .returns<{ pattern_id: number }[]>(),
+      ]);
       profileComplete = Boolean(profile?.first_name && profile?.last_name);
+
+      if (progressError) {
+        progressUnavailable = true;
+        console.error("Unable to load private pattern progress.");
+      } else {
+        for (const row of solvedProblems ?? []) {
+          solvedPatternIds.add(row.pattern_id);
+        }
+      }
     }
   } catch {
     userEmail = null;
@@ -122,6 +143,33 @@ export default async function Home() {
           </div>
         </section>
 
+        {userEmail && !unavailable ? (
+          <section className="mt-24" aria-labelledby="galaxy-title">
+            <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 id="galaxy-title" className="text-3xl font-semibold tracking-tight text-white">Your algorithm galaxy</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#9aa7b8]">
+                  Every node is a pattern. Solve its example problem to light it up in your private map.
+                </p>
+              </div>
+              {!progressUnavailable ? (
+                <div className="text-right">
+                  <div className="text-2xl font-semibold text-white">{solvedPatternIds.size} <span className="text-base font-normal text-[#8190a4]">of {patterns.length}</span></div>
+                  <div className="mt-1 text-xs text-[#8190a4]">example problems solved</div>
+                </div>
+              ) : null}
+            </div>
+
+            {progressUnavailable ? (
+              <p role="alert" className="surface-soft p-5 text-sm leading-6 text-amber-100">
+                Personal progress is not ready yet. Run the Week 5 Supabase migration to enable it.
+              </p>
+            ) : (
+              <AlgorithmGalaxy patterns={patterns} solvedPatternIds={solvedPatternIds} />
+            )}
+          </section>
+        ) : null}
+
         <section className="mt-24" aria-label="Algorithm pattern cards">
           <div className="mb-7 flex items-end justify-between gap-4">
             <div>
@@ -139,8 +187,10 @@ export default async function Home() {
             <p className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-slate-300">No patterns yet. Add rows in Supabase to build the atlas.</p>
           ) : (
             <ul className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {patterns.map((pattern) => (
-                <li key={pattern.id} className="group surface flex h-full flex-col p-6 transition duration-300 hover:-translate-y-1 hover:border-[#334966] hover:bg-[#141e2c]">
+              {patterns.map((pattern) => {
+                const solved = solvedPatternIds.has(pattern.id);
+                return (
+                <li id={`pattern-${pattern.id}`} key={pattern.id} className="group surface flex h-full scroll-mt-6 flex-col p-6 transition duration-300 hover:-translate-y-1 hover:border-[#334966] hover:bg-[#141e2c]">
                   <div className="mb-6 flex items-center justify-between gap-3">
                     <span className="text-xs text-[#6e6e73]">{String(pattern.id).padStart(2, "0")}</span>
                     <span className={`rounded-full bg-white/[0.06] px-3 py-1 text-xs font-medium ${categoryClass(pattern.category)}`}>{pattern.category}</span>
@@ -163,9 +213,18 @@ export default async function Home() {
                       </div>
                     </div>
                   </dl>
-                  <div className="mt-auto border-t border-white/[0.08] pt-4 text-xs text-[#6f7e91]">Confidence · {pattern.confidence}</div>
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.08] pt-4">
+                    <span className="text-xs text-[#6f7e91]">Confidence · {pattern.confidence}</span>
+                    {userEmail && !progressUnavailable ? (
+                      <form action={togglePatternSolved}>
+                        <input type="hidden" name="pattern_id" value={pattern.id} />
+                        <ProgressButton solved={solved} />
+                      </form>
+                    ) : null}
+                  </div>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </section>
