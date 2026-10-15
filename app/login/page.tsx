@@ -9,7 +9,7 @@ export default function LoginPage() {
         <p className="text-sm font-medium text-[#2997ff]">Welcome back</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white">Your study space is ready.</h1>
         <p className="mt-4 leading-7 text-[#a1a1a6]">
-          Sign in to create study cards, vote on community answers, and update your private study plan.
+          Sign in to create community posts, vote on helpful answers, and update your private study plan.
         </p>
         <form action={signInWithGoogle} className="mt-8">
           <button className="primary-button w-full">

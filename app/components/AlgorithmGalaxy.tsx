@@ -76,7 +76,7 @@ export function AlgorithmGalaxy({
     .filter((point): point is Point => Boolean(point));
 
   return (
-    <div className="surface overflow-hidden p-4 sm:p-6">
+    <div id="galaxy-map" className="surface scroll-mt-8 overflow-hidden p-4 sm:p-6">
       <div className="overflow-x-auto pb-2" aria-label="Scrollable personal algorithm galaxy">
         <svg
           viewBox="0 0 930 455"
@@ -163,7 +163,7 @@ export function AlgorithmGalaxy({
         </svg>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.08] px-2 pt-4 text-xs text-[#8190a4]">
-        <span>Choose a node to jump to its pattern card.</span>
+        <span>Choose a node to open its pattern below.</span>
         <span className="flex items-center gap-4">
           <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full border border-[#63a9ff] bg-[#121d2c]" />Not solved</span>
           <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#75d49b]" />Solved</span>
@@ -172,4 +172,3 @@ export function AlgorithmGalaxy({
     </div>
   );
 }
-

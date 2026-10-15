@@ -26,9 +26,9 @@ const newYorkTime = new Intl.DateTimeFormat("en-US", {
   timeZoneName: "short",
 });
 
-function authorName(card: AiGeneration) {
-  const first = card.profiles?.first_name;
-  const last = card.profiles?.last_name;
+function authorName(post: AiGeneration) {
+  const first = post.profiles?.first_name;
+  const last = post.profiles?.last_name;
   return first ? `${first}${last ? ` ${last}` : ""}` : "Atlas member";
 }
 
@@ -50,7 +50,7 @@ export default async function AiCoachPage({
     .limit(30)
     .returns<AiGeneration[]>();
 
-  const cards = data ?? [];
+  const posts = data ?? [];
 
   return (
     <main className="page-shell">
@@ -66,13 +66,13 @@ export default async function AiCoachPage({
         <section className="mx-auto max-w-4xl py-10 text-center">
           <h1 className="text-5xl font-semibold leading-[1.05] tracking-[-0.04em] text-white sm:text-7xl">Ask a good question.<br />Keep the best answers.</h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[#a1a1a6]">
-            Create a concise study card, then let the community decide what is worth remembering.
+            Share a concise study post, then let the community decide what is worth remembering.
           </p>
         </section>
 
         <section className="mt-16 grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
           <div className="surface p-7 lg:sticky lg:top-6">
-            <h2 className="text-2xl font-semibold tracking-tight text-white">Create a card</h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-white">Create a post</h2>
             <p className="mt-3 text-sm leading-6 text-[#86868b]">
               Choose a topic and ask one focused question.
             </p>
@@ -81,7 +81,7 @@ export default async function AiCoachPage({
               <form action={createAiGeneration} className="mt-7 grid gap-5">
                 {error === "generation" ? (
                   <p role="alert" className="rounded-2xl border border-rose-300/30 bg-rose-300/10 p-4 text-sm leading-6 text-rose-100">
-                    Gemini could not generate a complete answer. Please try again. No incomplete card was saved.
+                    Gemini could not generate a complete answer. Please try again. No incomplete post was saved.
                   </p>
                 ) : null}
                 <label className="grid gap-2 text-sm font-medium text-[#a1a1a6]">
@@ -105,7 +105,7 @@ export default async function AiCoachPage({
               </form>
             ) : (
               <div className="mt-6 border-t border-white/[0.08] pt-5 text-[#d2d2d7]">
-                <p className="text-sm leading-6">Sign in to create cards and vote.</p>
+                <p className="text-sm leading-6">Sign in to create posts and vote.</p>
                 <form action={signInWithGoogle} className="mt-4">
                   <button className="primary-button">
                     Continue with Google
@@ -117,45 +117,45 @@ export default async function AiCoachPage({
 
           <div>
             <div className="flex items-center justify-between gap-4">
-              <h2 className="text-2xl font-semibold tracking-tight text-white">Latest cards</h2>
-              <span className="text-sm text-[#6e6e73]">{cards.length} saved</span>
+              <h2 className="text-2xl font-semibold tracking-tight text-white">Latest posts</h2>
+              <span className="text-sm text-[#6e6e73]">{posts.length} shared</span>
             </div>
 
-            {cards.length === 0 ? (
-              <p className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-5 text-sm text-slate-300">No AI cards yet. Generate the first one.</p>
+            {posts.length === 0 ? (
+              <p className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-5 text-sm text-slate-300">No community posts yet. Share the first one.</p>
             ) : (
               <ul className="mt-6 grid gap-5">
-                {cards.map((card) => {
-                  const upvotes = card.generation_votes.filter((vote) => vote.vote === 1).length;
-                  const downvotes = card.generation_votes.filter((vote) => vote.vote === -1).length;
-                  const currentUserVote = card.generation_votes.find((vote) => vote.user_id === user?.id)?.vote;
+                {posts.map((post) => {
+                  const upvotes = post.generation_votes.filter((vote) => vote.vote === 1).length;
+                  const downvotes = post.generation_votes.filter((vote) => vote.vote === -1).length;
+                  const currentUserVote = post.generation_votes.find((vote) => vote.user_id === user?.id)?.vote;
 
                   return (
-                    <li key={card.id} className="surface p-6 sm:p-7">
+                    <li key={post.id} className="surface p-6 sm:p-7">
                       <div className="flex flex-wrap items-center justify-between gap-3">
-                        <span className="rounded-full bg-white/[0.07] px-3 py-1 text-xs font-medium text-[#d2d2d7]">{card.category}</span>
+                        <span className="rounded-full bg-white/[0.07] px-3 py-1 text-xs font-medium text-[#d2d2d7]">{post.category}</span>
                         <span className="text-right text-xs leading-5 text-[#6e6e73]">
-                          <span className="block">by {authorName(card)}</span>
-                          <time dateTime={card.created_at}>Generated {newYorkTime.format(new Date(card.created_at))}</time>
+                          <span className="block">by {authorName(post)}</span>
+                          <time dateTime={post.created_at}>Shared {newYorkTime.format(new Date(post.created_at))}</time>
                         </span>
                       </div>
-                      <p className="mt-6 text-[15px] leading-7 text-[#e8e8ed]">{card.generated_text}</p>
+                      <p className="mt-6 text-[15px] leading-7 text-[#e8e8ed]">{post.generated_text}</p>
                       <div className="mt-6 border-l-2 border-[#334966] pl-4">
                         <div className="text-xs font-medium text-[#6e6e73]">Question</div>
-                        <p className="mt-2 text-sm leading-6 text-[#a1a1a6]">{card.prompt}</p>
+                        <p className="mt-2 text-sm leading-6 text-[#a1a1a6]">{post.prompt}</p>
                       </div>
                       <div className="mt-4 flex flex-wrap items-center gap-3">
                         {user ? (
                           <>
                             <form action={voteOnGeneration}>
-                              <input type="hidden" name="generation_id" value={card.id} />
+                              <input type="hidden" name="generation_id" value={post.id} />
                               <input type="hidden" name="vote" value="1" />
                               <button className={`min-h-11 rounded-full px-4 py-2 text-sm font-medium transition ${currentUserVote === 1 ? "bg-[#30d158] text-[#07120a]" : "bg-white/[0.06] text-[#d2d2d7] hover:bg-white/[0.1]"}`}>
                                 Helpful · {upvotes}
                               </button>
                             </form>
                             <form action={voteOnGeneration}>
-                              <input type="hidden" name="generation_id" value={card.id} />
+                              <input type="hidden" name="generation_id" value={post.id} />
                               <input type="hidden" name="vote" value="-1" />
                               <button className={`min-h-11 rounded-full px-4 py-2 text-sm font-medium transition ${currentUserVote === -1 ? "bg-[#ff453a] text-white" : "bg-white/[0.06] text-[#d2d2d7] hover:bg-white/[0.1]"}`}>
                                 Needs work · {downvotes}

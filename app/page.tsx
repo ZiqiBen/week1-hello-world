@@ -158,7 +158,7 @@ export default async function Home({
         </section>
 
         {userEmail && !unavailable ? (
-          <section className="mt-24" aria-labelledby="galaxy-title">
+          <section id="galaxy" className="mt-24 scroll-mt-8" aria-labelledby="galaxy-title">
             <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h2 id="galaxy-title" className="text-3xl font-semibold tracking-tight text-white">Your algorithm galaxy</h2>
@@ -172,6 +172,27 @@ export default async function Home({
                   <div className="mt-1 text-xs text-[#8190a4]">example problems solved</div>
                 </div>
               ) : null}
+            </div>
+
+            <div className="surface-soft mb-6 overflow-hidden" aria-labelledby="galaxy-guide-title">
+              <div className="border-b border-white/[0.08] px-5 py-4 sm:px-6">
+                <h3 id="galaxy-guide-title" className="text-base font-semibold text-white">Start with one pattern</h3>
+                <p className="mt-1 text-sm leading-6 text-[#9aa7b8]">Your galaxy is a map of what you have practiced. Here is how to use it.</p>
+              </div>
+              <ol className="grid sm:grid-cols-3 sm:divide-x sm:divide-white/[0.08]">
+                <li className="border-b border-white/[0.08] px-5 py-5 sm:border-b-0 sm:px-6">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-[#63a9ff]">1 · Choose a node</div>
+                  <p className="mt-2 text-sm leading-6 text-[#d2d2d7]">Click any node below to jump to its matching pattern.</p>
+                </li>
+                <li className="border-b border-white/[0.08] px-5 py-5 sm:border-b-0 sm:px-6">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-[#63a9ff]">2 · Try the example</div>
+                  <p className="mt-2 text-sm leading-6 text-[#d2d2d7]">Read the pattern, then solve the example problem on its card.</p>
+                </li>
+                <li className="px-5 py-5 sm:px-6">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-[#75d49b]">3 · Light the node</div>
+                  <p className="mt-2 text-sm leading-6 text-[#d2d2d7]">Select <span className="font-semibold text-white">Mark as solved</span>. Your node will glow and your total will update.</p>
+                </li>
+              </ol>
             </div>
 
             {progressUnavailable ? (

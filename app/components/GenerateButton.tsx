@@ -14,10 +14,10 @@ export default function GenerateButton() {
       {pending ? (
         <>
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" />
-          Creating your card…
+          Creating your post…
         </>
       ) : (
-        "Generate AI card"
+        "Create post"
       )}
     </button>
   );

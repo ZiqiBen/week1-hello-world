@@ -30,7 +30,7 @@ function getSiteUrl(origin: string | null) {
   return origin ?? "http://localhost:3000";
 }
 
-async function buildStudyCard(category: string, prompt: string) {
+async function buildCommunityPost(category: string, prompt: string) {
   const apiKey = process.env.GEMINI_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   const models = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"];
   const systemPrompt = `You are a precise computer science tutor for a Columbia undergraduate. Category: "${category}". Question: "${prompt}". Write a self-contained answer of 90 to 140 words. First answer the exact question in plain English. Then give a small concrete example. End with one common mistake or limitation. Use complete sentences. Do not use markdown headings, filler, or repeat the question.`;
@@ -169,9 +169,9 @@ export async function createAiGeneration(formData: FormData) {
   const prompt = clean(formData.get("prompt")) ?? "Give me one useful LeetCode interview study tip.";
   let generatedText: string;
   try {
-    generatedText = await buildStudyCard(category, prompt);
+    generatedText = await buildCommunityPost(category, prompt);
   } catch (error) {
-    console.error("AI card generation failed", error);
+    console.error("Community post generation failed", error);
     redirect("/ai-coach?error=generation");
   }
 
